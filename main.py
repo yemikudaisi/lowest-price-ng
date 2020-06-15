@@ -84,7 +84,8 @@ def index():
             counter += 1
         name = ''.join(name)
 
-        source = requests.get(f'https://www.getprice.com.au/buy-best-{name}.htm').text
+        source = requests.get(f'https://ng.pricena.com/en/search/?s={name}').text
+
 
         name = name.split('-')
 
