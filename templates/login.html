@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block main %}
+<div class="container mx-auto col-6">
+  <div class="alert alert-success" id="alertmessage">{{ message }}</div>
+  <hr>
+  <form class="form-signin" method="POST", action=/login>
+    <h2 class="form-signin-heading">Please sign in</h2>
+    {{ form.hidden_tag() }}
+    {{ wtf.form_field(form.username) }}
+    {{ wtf.form_field(form.password) }}
+    <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+  </form>
+</div> <!-- /container -->
+<script>
+  function greeting() {
+    let alert = document.getElementById('alertmessage');
+    if (alert.innerHTML.length == 0) {
+      alert.remove()
+    }
+    else if (alert.innerHTML == "Incorrect password or username!") {
+      alert.setAttribute("class", "alert alert-danger")
+    }
+  }
+  window.onload = greeting;
+</script>
+{% endblock %}

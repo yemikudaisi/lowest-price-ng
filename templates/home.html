@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+{% extends "layout.html" %}
+{% block main %}
+<br>
+<h6 style="text-align:center">Welcome {{name}}</h6>
+<div class="about" style="text-align:center">
+  <h1>Search for an item</h1>
+  <p>Web scraping retail stores for the best prices</p>
+</div>
+<form action="/" method="post" style="text-align:center">
+  <div class="form-group">
+    <div class="row">
+      <div class="col-sm">
+      </div>
+      <div class="col-sm col-sm col-sm">
+        <input type="text" class="form-control mb-4" id="itemname" name="name" placeholder="iPhone XS">
+      </div>
+      <div class="col-sm">
+      </div>
+    </div>
+    <button class="btn btn-primary" type="submit">Submit</button>
+</form>
+{% endblock %}

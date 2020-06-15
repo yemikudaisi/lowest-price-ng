@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+{% extends "layout.html" %}
+{% block main %}
+<!-- <div id="alertmessage">
+
+</div> -->
+<form action="/about" method="post">
+  <div class="container mx-auto col-6" style="text-align:center">
+    <h1 name="item_name">{{ item['name'] }}</h1>
+    <img data-src="{{ item['image_link'] }}">
+    <h5 name="lowest_price">Lowest Price: {{ item['price'] }}</h6>
+    <h5 name="store_name">Store: {{ item['shop_name'] }}</h6>
+    <a href="{{ item['link'] }}" target="_blank">Click here for the link!</a>
+  </div>
+  <br>
+  <div id="Add" class="submit button" style="text-align:center">
+    <p><button type="submit" name="button" class="btn btn-success">Add to your wishlist</button></p>
+  </div>
+</form>
+<br>
+<div class="otheritems" style="text-align:center">
+  <p>Not the item you're looking for?</p>
+  <a href="/">Try searching again</a>
+</div>
+<!-- <script>
+  let msg ='<div class="alert alert-success alert-dismissable fade show"><button type="button" class="close" data-dismiss="alert">&times;</button><strong>Success! </strong>Item added to your wishlist!</div>';
+  let alertmessage = document.getElementById('alertmessage');
+  let button = document.getElementById('Add');
+  button.addEventListener("click", function(){ alertmessage.innerHTML = msg; });
+</script> -->
+
+{% endblock %}
