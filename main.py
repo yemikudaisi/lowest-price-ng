@@ -13,6 +13,7 @@ from datetime import datetime
 from flask import g
 import urllib
 from urllib.request import Request, urlopen
+import difflib
 
 
 app = Flask(__name__)
@@ -71,10 +72,10 @@ def itemDict(item):
             .find('a')
             .contents[0],
         "shop_name": shop_name,
-        "price": item.find('div', class_='caption')
+        "price": int(item.find('div', class_='caption')
             .find('div', class_='price')
             .find('a', class_='from')
-            .contents[2],
+            .contents[2]),
         "link": item.find('div', class_='product-thumbnail')
             .find('a')['href']
     }
@@ -94,21 +95,6 @@ def index():
         matches = 0
         counter = 0
 
-        # replace spaces with hyphens for url link
-        #for letter in name:
-            #if letter == ' ':
-                #name[counter] = '-'
-            #counter += 1
-        #name = ''.join(name)
-        
-        #link = f'https://ng.pricena.com/en/search/?s={urllib.parse.quote(name)}'
-        #source = requests.get(link).text
-
-        #print(link)
-        #print(f'query parameter - >{name}')
-        #source = requests.get(f'https://www.getprice.com.au/buy-best-{name}.htm').text
-
-        #name = name.split('-')
 
         name_length = len(name)
         #compiles source into lxml file
@@ -124,24 +110,21 @@ def index():
         # creates an item dictionary for each item and stores it in items = []
         for item in items_source:
             items.append(itemDict(item))
-
+        global current_match
         for item in items:
-            # buffer to store item name from items
-            item_buffer = list(set(item['name'].split(' ')))
-            #print(f'buffer --> {item_buffer}\n')
-            matches = 0
-            # iterates over every word in item_buffer
-            for i in item_buffer:
-                # iterates over every word in name
-                for j in name:
-                    if (i.lower() == j.lower()):
-                        matches += 1
-            if matches == name_length:
-                global current_match
-                current_match = item
-                print(current_match)
-                return render_template('lowest.html', item=item)
-        return render_template('notfound.html')
+            ration = difflib.SequenceMatcher(None, name.lower(), item['name'].lower()).ratio()
+            
+            if(ration > 0.5):
+                if(current_match is None):
+                    current_match = item
+                elif(item['price'] < current_match['price']):
+                    current_match = item
+
+        
+        if(current_match is None):
+            return render_template('notfound.html')
+        else:
+            return render_template('lowest.html', item=current_match)
 
 def get_search_soup(search_param):
     req = Request(f'https://ng.pricena.com/en/search/?s={urllib.parse.quote(search_param)}', headers={'User-Agent': 'Mozilla/5.0'})
