@@ -11,6 +11,9 @@ from wtforms import StringField, PasswordField, BooleanField
 from wtforms.validators import InputRequired, Email, Length
 from datetime import datetime
 from flask import g
+import urllib
+from urllib.request import Request, urlopen
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'THISISASOCIETY'
@@ -54,12 +57,26 @@ class RegisterForm(FlaskForm):
     password = PasswordField('password', validators=[InputRequired(), Length(min=8, max=80)])
 
 def itemDict(item):
+    try:
+        shop_name = item.find('div', class_='caption').find('span', class_='from-store').find('span').text
+    except:
+        shop_name = item.find('div', class_='caption').find('span', class_='count-stores').text
     dict = {
-        "image_link": item.find('div', class_='pic').find('img')['data-src'],
-        "name": item.find('strong').text,
-        "shop_name": item.find('div', class_='offer').find('img')['alt'],
-        "price": item.find('div', class_='offer').find('a', class_='price').text,
-        "link": item.find('div', class_='offer').find('a', class_='price')['href']
+        "image_link": item.find('div', class_='product-thumbnail')
+            .find('a')
+            .find('img')['data-src'],
+        "name": item.find('div', class_='caption')
+            .find()
+            .find('h2')
+            .find('a')
+            .contents[0],
+        "shop_name": shop_name,
+        "price": item.find('div', class_='caption')
+            .find('div', class_='price')
+            .find('a', class_='from')
+            .contents[2],
+        "link": item.find('div', class_='product-thumbnail')
+            .find('a')['href']
     }
     return dict
 
@@ -72,29 +89,34 @@ def index():
     if request.method =="GET":
         return render_template('home.html', name = current_user.username)
     else:
-        name = list(request.form.get("name"))
+        name = request.form.get("name")
         # match counter to check if words match
         matches = 0
         counter = 0
 
         # replace spaces with hyphens for url link
-        for letter in name:
-            if letter == ' ':
-                name[counter] = '-'
-            counter += 1
-        name = ''.join(name)
+        #for letter in name:
+            #if letter == ' ':
+                #name[counter] = '-'
+            #counter += 1
+        #name = ''.join(name)
+        
+        #link = f'https://ng.pricena.com/en/search/?s={urllib.parse.quote(name)}'
+        #source = requests.get(link).text
 
-        source = requests.get(f'https://ng.pricena.com/en/search/?s={name}').text
+        #print(link)
+        #print(f'query parameter - >{name}')
+        #source = requests.get(f'https://www.getprice.com.au/buy-best-{name}.htm').text
 
-
-        name = name.split('-')
+        #name = name.split('-')
 
         name_length = len(name)
         #compiles source into lxml file
-        soup = BeautifulSoup(source, 'lxml')
+        #soup = BeautifulSoup(source, 'lxml')
+        soup = get_search_soup(name)
 
         # list of items in HTML
-        items_source = soup.findAll('div', class_='list-item-compare li-product')
+        items_source = soup.findAll('div', class_='item desktop')
 
         # list for item dicts to be stored in
         items = []
@@ -106,7 +128,7 @@ def index():
         for item in items:
             # buffer to store item name from items
             item_buffer = list(set(item['name'].split(' ')))
-            print(f'buffer --> {item_buffer}/n')
+            #print(f'buffer --> {item_buffer}\n')
             matches = 0
             # iterates over every word in item_buffer
             for i in item_buffer:
@@ -120,6 +142,11 @@ def index():
                 print(current_match)
                 return render_template('lowest.html', item=item)
         return render_template('notfound.html')
+
+def get_search_soup(search_param):
+    req = Request(f'https://ng.pricena.com/en/search/?s={urllib.parse.quote(search_param)}', headers={'User-Agent': 'Mozilla/5.0'})
+    webpage = urlopen(req).read()
+    return BeautifulSoup(webpage, "html.parser") 
 
 @app.route('/about', methods=['GET', 'POST'])
 @login_required
