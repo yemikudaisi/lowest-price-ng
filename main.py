@@ -124,6 +124,8 @@ def index():
         if(current_match is None):
             return render_template('notfound.html')
         else:
+            print(f'item --> {current_match["name"]} \t image --> {current_match["image_link"]}')
+            #current_match['image_link'] = urllib.parse.quote(current_match['image_link'])
             return render_template('lowest.html', item=current_match)
 
 def get_search_soup(search_param):

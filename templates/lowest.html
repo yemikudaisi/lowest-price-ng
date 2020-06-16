@@ -7,7 +7,7 @@
 <form action="/about" method="post">
   <div class="container mx-auto col-6" style="text-align:center">
     <h1 name="item_name">{{ item['name'] }}</h1>
-    <img data-src="{{ item['image_link'] }}">
+    <img src="{{ item['image_link'] }}">
     <h5 name="lowest_price">Lowest Price: {{ item['price'] }}</h6>
     <h5 name="store_name">Store: {{ item['shop_name'] }}</h6>
     <a href="{{ item['link'] }}" target="_blank">Click here for the link!</a>
