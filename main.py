@@ -90,16 +90,10 @@ def index():
     if request.method =="GET":
         return render_template('home.html', name = current_user.username)
     else:
+        global current_match
+        current_match = None
         name = request.form.get("name")
-        # match counter to check if words match
-        matches = 0
-        counter = 0
-
-
-        name_length = len(name)
-        #compiles source into lxml file
-        #soup = BeautifulSoup(source, 'lxml')
-        soup = get_search_soup(name)
+        soup = get_search_soup(name) #get soup based on supplied search query
 
         # list of items in HTML
         items_source = soup.findAll('div', class_='item desktop')
@@ -110,15 +104,16 @@ def index():
         # creates an item dictionary for each item and stores it in items = []
         for item in items_source:
             items.append(itemDict(item))
-        global current_match
+        
+        # for each item, check how much the name mactches the original search
         for item in items:
-            ration = difflib.SequenceMatcher(None, name.lower(), item['name'].lower()).ratio()
+            ration = difflib.SequenceMatcher(None, name.lower(), item['name'].lower()).ratio() # get the match ratio
             
-            if(ration > 0.5):
-                if(current_match is None):
+            if(ration > 0.5): # if the ration is above half
+                if(current_match is None): #  if the ratio is above half simply assign the item as the current match
                     current_match = item
-                elif(item['price'] < current_match['price']):
-                    current_match = item
+                elif(item['price'] < current_match['price']): #otherwise, compare the price of the current 
+                    current_match = item                      #item with the previous match and assign as current match if the price is lower
 
         
         if(current_match is None):
